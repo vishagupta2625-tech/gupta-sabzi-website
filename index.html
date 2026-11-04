@@ -954,7 +954,7 @@ async function payOnline(){
     rz.open();
   }catch(e){ rzpMsg("⚠ Online payment is not available right now. Please choose Cash on Delivery or UPI.","bad"); }
 }
-const timeOpts = () => isClosed() ? ["Tomorrow morning (after mandi run)","Tomorrow afternoon (12–4 PM)","Tomorrow evening (5–8 PM)"] : ["Right after mandi run (earliest)","Afternoon (12–4 PM)","Evening (5–8 PM)"];
+const timeOpts = () => isClosed() ? [`${closedDay()} morning (after mandi run)`,`${closedDay()} afternoon (12–4 PM)`,`${closedDay()} evening (5–8 PM)`] : ["Right after mandi run (earliest)","Afternoon (12–4 PM)","Evening (5–8 PM)"];
 const form = {name:"",phone:"",addr:"",time:"",pay:"Cash on Delivery"};
 const upiQuery = amt => `pa=${SHOP.upi}&pn=${encodeURIComponent(SHOP.name)}&am=${amt}.00&cu=INR&tn=${encodeURIComponent("Vegetable order")}`;
 function copyPay(b,amt){
@@ -1000,7 +1000,7 @@ function renderDrawer(){
   const opt = (arr,cur) => arr.map(o=>`<option ${o===cur?"selected":""}>${o}</option>`).join("");
   db.innerHTML = `
     <div class="box dtime"><i>🛵</i><div><b>Delivered after our morning mandi run</b><small>${plural(t.items)} • Bought fresh the same morning • within ${SHOP.deliveryRadius} of ${SHOP.area}</small></div></div>
-    ${isClosed()?`<div class="note">🌙 Shop is closed now — your order will be delivered tomorrow morning.${hn("Delivery kal subah hogi")}</div>`:""}
+    ${isClosed()?`<div class="note">🌙 Shop is closed now — your order will be delivered ${closedDay().toLowerCase()} morning.${hn(closedDay()==="Today"?"Delivery aaj subah hogi":"Delivery kal subah hogi")}</div>`:""}
     ${isFirstOrder()?`<div class="note gift">🎁 ${esc(SHOP.firstOrderOffer)} — added with your order!${hn("Pehle order pe muft")}</div>`:""}
     ${more>0?`<div class="note">🚚 Add ₹${more} more to get FREE delivery!${hn(`₹${more} aur add karein, delivery free ho jaayegi`)}</div>`:""}
     <div class="box">${items}</div>
@@ -1044,6 +1044,7 @@ const BASKETS = [
 ];
 function istHour(){ try{ return +new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Kolkata",hour:"2-digit",hour12:false}).format(new Date()) % 24; }catch(e){ return new Date().getHours(); } }
 const isClosed = () => { const h=istHour(); return h<SHOP.openHour || h>=SHOP.closeHour; };
+const closedDay = () => istHour() < SHOP.openHour ? "Today" : "Tomorrow";
 const fmtHr = h => `${h%12||12} ${h<12?"AM":"PM"}`;
 const isFirstOrder = () => !lastBill && !!SHOP.firstOrderOffer;
 const shareText = () => `🥬 ${SHOP.name} – fresh vegetables from the mandi every morning, cheaper than online apps! Free delivery above ₹${SHOP.freeDeliveryAbove} in ${SHOP.area}.\nOrder here: ${SHOP.siteUrl}`;
@@ -1051,7 +1052,7 @@ const shareHref = () => `https://wa.me/?text=${encodeURIComponent(shareText())}`
 
 function closedBanner(){
   if(!isClosed()) return "";
-  return `<div class="closed"><i>🌙</i><div><b>We're closed right now — opens at ${fmtHr(SHOP.openHour)}</b><span>Order now and we'll deliver tomorrow morning, right after our mandi run.</span>${hn("Abhi order karein — kal subah mandi ke baad delivery hogi")}</div></div>`;
+  return `<div class="closed"><i>🌙</i><div><b>We're closed right now — opens at ${fmtHr(SHOP.openHour)}</b><span>Order now and we'll deliver ${closedDay().toLowerCase()} morning, right after our mandi run.</span>${hn(closedDay()==="Today"?"Abhi order karein — aaj subah mandi ke baad delivery hogi":"Abhi order karein — kal subah mandi ke baad delivery hogi")}</div></div>`;
 }
 function basketInfo(bk){
   let total=0, mrp=0, n=0; const parts=[];
