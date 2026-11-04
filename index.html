@@ -1013,9 +1013,8 @@ function renderDrawer(){
       <input id="fn" placeholder="Full name *" value="${esc(form.name)}">
       <input id="fp" placeholder="Mobile number *" inputmode="tel" value="${esc(form.phone)}">
       <textarea id="fa" rows="2" placeholder="Full address in Kandivali / nearby (house no., building, landmark) *">${esc(form.addr)}</textarea>
-      <select id="ft">${opt(timeOpts(),form.time)}</select>
       <select id="fpay">${opt(PAYS,form.pay)}</select><div id="upibox"></div></div></div>`;
-  [["fn","name"],["fp","phone"],["fa","addr"],["ft","time"],["fpay","pay"]].forEach(([id,k])=>{ const el=$(id); el.addEventListener("input",()=>{form[k]=el.value;updateWA();}); });
+  [["fn","name"],["fp","phone"],["fa","addr"],["fpay","pay"]].forEach(([id,k])=>{ const el=$(id); el.addEventListener("input",()=>{form[k]=el.value;updateWA();}); });
   updateWA();
 }
 function updateWA(){

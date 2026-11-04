@@ -17,9 +17,9 @@ window.SHOP = {
   deliveryRadius: "5 km",
   mapsUrl: "https://www.google.com/maps/search/?api=1&query=Merwans+Cake+Shop+Mathuradas+Road+Kandivali+West+Mumbai",
   address: "Mathuradas Road, Opp. Merwans Cake Shop, Kandivali West, Mumbai – 400067",
-  timing: "6:00 AM – 9:00 PM",
-  openHour: 6,      // shop opens (24-hour clock)
-  closeHour: 21,    // shop closes (21 = 9 PM)
+  timing: "5:00 AM – 10:00 PM",
+  openHour: 5,      // shop opens (24-hour clock)
+  closeHour: 22,    // shop closes (22 = 10 PM)
   siteUrl: "https://vishagupta2625-tech.github.io/gupta-sabzi-website/",
   firstOrderOffer: "First order: FREE coriander + green chilli",   // set to "" to turn off
   freeDeliveryAbove: 199,
