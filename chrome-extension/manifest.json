@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Gupta Sabzi – Apps Price Reader",
+  "version": "1.0",
+  "description": "Blinkit / Zepto pe dikh rahe sabzi ke daam padh ke Gupta Sabzi Bhandar website ke liye copy karta hai.",
+  "permissions": ["storage"],
+  "action": { "default_popup": "popup.html", "default_title": "Gupta Sabzi – Apps Prices" },
+  "content_scripts": [{
+    "matches": ["https://blinkit.com/*", "https://*.blinkit.com/*", "https://www.zeptonow.com/*", "https://zeptonow.com/*"],
+    "js": ["products-map.js", "content.js"],
+    "run_at": "document_idle"
+  }]
+}

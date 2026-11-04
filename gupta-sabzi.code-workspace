@@ -1,0 +1,20 @@
+{
+  // 👉 Is file pe double-click karke VS Code mein kholein
+  "folders": [{ "path": "." }],
+  "settings": {
+    // Save karte hi GitDoc extension apne-aap commit + push karega -> website update
+    "gitdoc.enabled": true,
+    "gitdoc.autoCommitDelay": 3000,
+    "gitdoc.autoPush": "onCommit",
+    "gitdoc.pullOnOpen": true,
+    // GitDoc na ho to: Commit karte hi Sync (push)
+    "git.enableSmartCommit": true,
+    "git.postCommitCommand": "sync",
+    "git.confirmSync": false,
+    "git.autofetch": true,
+    "editor.wordWrap": "on"
+  },
+  "extensions": {
+    "recommendations": ["vsls-contrib.gitdoc", "ritwickdey.liveserver"]
+  }
+}
