@@ -1166,14 +1166,17 @@ function billText(b){
   return m;
 }
 function drawBillPNG(b){
-  const W=720, pad=40, lh=34, rows=b.items.length;
-  const H=560+rows*lh+(b.saved>0?40:0)+Math.ceil(b.addr.length/60)*26;
-  const c=document.createElement("canvas"); c.width=W; c.height=H; const x=c.getContext("2d");
+  const W=720, pad=40, lh=34;
   const F="'Plus Jakarta Sans', Arial, sans-serif";
+  const mc=document.createElement("canvas"), mx=mc.getContext("2d");
+  const wrap=(ctx,t,mw)=>{ const w=String(t||"").split(" "),L=[];let cur=""; for(const q of w){ const tr=cur?cur+" "+q:q; if(ctx.measureText(tr).width>mw&&cur){L.push(cur);cur=q;} else cur=tr; } if(cur)L.push(cur); return L; };
+  mx.font=`500 15px ${F}`;
+  const aL=wrap(mx,SHOP.address,W-2*pad-80);
+  const dAL=wrap(mx,b.addr,W-2*pad);
+  const HB=100+aL.length*22;
+  const H=HB+430+dAL.length*24+b.items.length*lh+(b.saved>0?30:0);
+  const c=document.createElement("canvas"); c.width=W; c.height=H; const x=c.getContext("2d");
   x.fillStyle="#ffffff"; x.fillRect(0,0,W,H);
-  const wrap=(t,mw)=>{ const w=t.split(" "),L=[];let cur=""; for(const q of w){ const tr=cur?cur+" "+q:q; if(x.measureText(tr).width>mw&&cur){L.push(cur);cur=q;} else cur=tr; } if(cur)L.push(cur); return L; };
-  x.font=`500 15px ${F}`; const aL=wrap(SHOP.address,W-2*pad-80); const HB=100+aL.length*22;
-  c.height=H+(HB-120); x.fillStyle="#ffffff"; x.fillRect(0,0,W,c.height);
   x.fillStyle="#0c831f"; x.fillRect(0,0,W,HB);
   x.fillStyle="#fff"; x.font=`800 30px ${F}`; x.fillText(SHOP.name,pad,52);
   x.font=`500 15px ${F}`; aL.forEach((l,i)=>x.fillText(l,pad,80+i*22)); x.fillText(`${SHOP.phoneDisplay}  ·  UPI ${SHOP.upi}`,pad,80+aL.length*22);
@@ -1183,7 +1186,7 @@ function drawBillPNG(b){
   y+=40; x.fillStyle="#666"; x.font=`600 14px ${F}`; x.fillText("CUSTOMER",pad,y);
   y+=24; x.fillStyle="#1c1c1c"; x.font=`700 18px ${F}`; x.fillText(`${b.name}  ·  ${b.phone}`,pad,y);
   x.font=`500 15px ${F}`; x.fillStyle="#444";
-  for(const l of wrap(b.addr,W-2*pad)){ y+=24; x.fillText(l,pad,y); }
+  for(const l of dAL){ y+=24; x.fillText(l,pad,y); }
   y+=34; x.fillStyle="#eaf6ec"; x.fillRect(pad-10,y-22,W-2*pad+20,34);
   x.fillStyle="#0a6a19"; x.font=`800 14px ${F}`; x.fillText("ITEM",pad,y); x.fillText("QTY",W-260,y); x.textAlign="right"; x.fillText("AMOUNT",W-pad,y); x.textAlign="left";
   x.font=`600 16px ${F}`;
@@ -1237,11 +1240,19 @@ function showBill(b,justPlaced,imageSent){
     </div><p class="hint" id="bmsg"></p>${justPlaced?"":rateHTML(b)}`;
   $("df").style.display="none";
   $("bdl").onclick=async()=>{ const m=$("bmsg"); m.textContent="Preparing bill…";
-    try{ await document.fonts.ready; const blob=await drawBillPNG(b);
-      const dl = window.claude ? await claude.use("downloads") : null;
-      if(dl){ await dl.save({filename:`Bill-${b.no}.png`, data:blob}); m.textContent="✓ Bill saved"; }
-      else { const u=URL.createObjectURL(blob); m.innerHTML=`Long-press the bill below to save it:<br><img src="${u}" style="width:100%;margin-top:8px;border-radius:10px;border:1px solid var(--line)">`; }
-    }catch(err){ m.textContent = err&&err.code==="declined" ? "Download cancelled." : "Could not download here — take a screenshot of the bill instead."; } };
+    try{
+      await document.fonts.ready; const blob=await drawBillPNG(b);
+      let saved=false;
+      if(window.claude){ try{ const dl=await claude.use("downloads"); await dl.save({filename:`Bill-${b.no}.png`, data:blob}); saved=true; }catch(_){} }
+      const u=URL.createObjectURL(blob);
+      if(!saved){
+        try{
+          const a=document.createElement("a"); a.href=u; a.download=`Bill-${b.no}.png`;
+          document.body.appendChild(a); a.click(); a.remove(); saved=true;
+        }catch(_){}
+      }
+      m.innerHTML = (saved?"✓ Bill downloaded. ":"") + `Long-press (or tap and hold) the bill below to save it:<br><img src="${u}" style="width:100%;margin-top:8px;border-radius:10px;border:1px solid var(--line)">`;
+    }catch(err){ m.textContent = err&&err.code==="declined" ? "Download cancelled." : "Could not prepare the bill image — please try again."; } };
   $("bwa").onclick=async()=>{ const m=$("bmsg"); m.textContent="Preparing bill…";
     try{
       await document.fonts.ready; const blob=await drawBillPNG(b);
