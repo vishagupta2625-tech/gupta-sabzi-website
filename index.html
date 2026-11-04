@@ -376,6 +376,11 @@ footer button:hover{color:var(--g)}
   .promise>div{padding:4px 8px;font-size:11.5px}.promise b{font-size:12.5px}
 }
 
+/* Razorpay */
+.rzp{border:2px solid var(--g);border-radius:14px;padding:14px;background:var(--gl);display:grid;gap:6px;text-align:center}
+.rzp b{font-size:15px}.rzp p{font-size:13px;color:var(--mut)}
+.rzp-msg{font-size:13px;font-weight:700;line-height:1.45}.rzp-msg:empty{display:none}
+.rzp-msg.good{color:var(--gd)}.rzp-msg.bad{color:var(--red)}
 /* UPI pay box */
 .upi{border:2px solid var(--g);border-radius:14px;padding:14px;background:var(--gl);display:grid;gap:10px;text-align:center}
 .upi-h b{font-size:16px}
@@ -383,6 +388,10 @@ footer button:hover{color:var(--g)}
 .upi-apps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .upi-apps a{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:9px 4px;font-weight:700;font-size:13px}
 .upi-or{font-size:12px;color:var(--mut)}
+.upi-steps{display:grid;gap:8px;text-align:left;font-size:13px;font-weight:600}
+.upi-steps>div{display:grid;grid-template-columns:24px 1fr;column-gap:8px}
+.upi-steps .un{font-style:normal;grid-row:span 2;width:22px;height:22px;border-radius:50%;background:var(--g);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center}
+.upi-steps .hn{font-size:11px}
 .upi-qr{display:grid;place-items:center;min-height:196px;background:#fff;border-radius:12px;padding:8px;width:200px;margin:auto}
 .upi-qr svg{width:180px;height:180px;display:block}
 .upi-qr span{font-size:12px;color:#777}
@@ -631,7 +640,7 @@ body.adm .ia-bar,body.adm .hinst{display:none!important}
       <div><h4 class="js-name"></h4><p style="line-height:1.6">Your neighbourhood vegetable shop, now online. Fresh from the mandi every morning, priced lower than online apps.<span class="hn">Aapke mohalle ki apni sabzi dukaan, ab online.</span></p></div>
       <div><h4>Useful Links<span class="hn">Zaroori links</span></h4><ul>
         <li><button onclick="go('home')">Home</button></li><li><button onclick="go('deals')">Today's Deals</button></li>
-        <li><button onclick="go('season')">Winter Specials</button></li><li><button onclick="openCart()">My Cart</button></li><li><button onclick="openInstall()">📲 Install App</button></li><li><a href="#" onclick="this.href=shareHref()" target="_blank" rel="noopener">📤 Share with friends</a></li></ul></div>
+        <li><button onclick="go('season')">Winter Specials</button></li><li><button onclick="openCart()">My Cart</button></li><li><button onclick="openInstall()">📲 Install App</button></li><li><a href="policies.html#contact">Contact Us</a></li><li><a href="policies.html#terms">Terms &amp; Conditions</a></li><li><a href="policies.html#refund">Refund &amp; Cancellation</a></li><li><a href="policies.html#shipping">Delivery Policy</a></li><li><a href="policies.html#privacy">Privacy Policy</a></li><li><a href="#" onclick="this.href=shareHref()" target="_blank" rel="noopener">📤 Share with friends</a></li></ul></div>
       <div><h4>Categories<span class="hn">Shreniyan</span></h4><ul class="cols" id="fcats"></ul></div>
       <div><h4>Contact Us<span class="hn">Sampark karein</span></h4><ul>
         <li>📍 <a class="js-maps" href="#" target="_blank" rel="noopener" style="text-decoration:underline"><span class="js-addr"></span></a></li><li>📞 <span class="js-phone"></span> (WhatsApp)</li><li>🕕 <span class="js-time"></span></li><li>🛵 Delivery within <span class="js-radius"></span> of our shop</li><li>💵 Cash / UPI: <b class="js-upi" style="color:var(--ink)"></b> <button class="cpy" onclick="copyUpi(this)">Copy</button></li></ul></div>
@@ -681,7 +690,7 @@ body.adm .ia-bar,body.adm .hinst{display:none!important}
   <div class="dh"><h2>My Cart<span class="hn">Aapka cart</span></h2><button onclick="closeCart()">✕</button></div>
   <div class="db" id="db"></div>
   <div class="df" id="df">
-    <a class="wa dis" id="waBtn" href="#" target="_blank" rel="noopener" onclick="placeOrder(event)"><div><span id="waTot">₹0</span><small>TOTAL</small></div><div style="text-align:right">Place Order on WhatsApp ›<small>WhatsApp pe order bhejein</small></div></a>
+    <a class="wa dis" id="waBtn" href="#" target="_blank" rel="noopener" onclick="placeOrder(event)"><div><span id="waTot">₹0</span><small>TOTAL</small></div><div style="text-align:right" id="waLbl">Place Order on WhatsApp ›<small>WhatsApp pe order bhejein</small></div></a>
     <div class="hint" id="waHint"></div>
   </div>
 </aside>
@@ -907,26 +916,73 @@ function updateCart(){
   if($("drawer").classList.contains("show")) renderDrawer();
 }
 function copyUpi(b){ try{ navigator.clipboard.writeText(SHOP.upi).then(()=>{b.textContent="Copied ✓";setTimeout(()=>b.textContent="Copy",1500)}).catch(()=>{b.textContent=SHOP.upi}); }catch(e){ b.textContent=SHOP.upi; } }
-const PAYS = ["Cash on Delivery","Pay Now with UPI (GPay / PhonePe / Paytm)"];
+const RZP_ON = !!(SHOP.razorpayKeyId && SHOP.razorpayServer);
+const RZP = "Pay Online (Card / UPI / Netbanking)";
+const PAYS = ["Cash on Delivery","Pay Now with UPI (GPay / PhonePe / Paytm)"].concat(RZP_ON?[RZP]:[]);
 const PAYNOW = PAYS[1];
+let rzpPaid = null;   // {payment_id, amount}
+let rzpLib = null;
+function loadRzp(){ if(window.Razorpay) return Promise.resolve(); if(rzpLib) return rzpLib;
+  rzpLib = new Promise((ok,bad)=>{ const sc=document.createElement("script"); sc.src="https://checkout.razorpay.com/v1/checkout.js"; sc.onload=ok; sc.onerror=()=>{rzpLib=null;bad(new Error("load"))}; document.head.appendChild(sc); }); return rzpLib; }
+async function rzpCall(path,data){ const r=await fetch(SHOP.razorpayServer.replace(/\/$/,"")+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)}); const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||"server"); return j; }
+function rzpMsg(t,kind){ const el=$("rzpmsg"); if(el){ el.className="rzp-msg "+(kind||""); el.innerHTML=t; } }
+async function payOnline(){
+  const t=totals(), b=billData();
+  rzpMsg("⏳ Opening secure payment…");
+  try{
+    await loadRzp();
+    const o = await rzpCall("/create-order",{ amount:t.total, receipt:b.no, notes:{order:b.no, name:b.name, phone:b.phone} });
+    const rz = new Razorpay({
+      key: SHOP.razorpayKeyId, order_id:o.order_id, amount:o.amount, currency:"INR",
+      name: SHOP.name, description: `Order ${b.no} – ${plural(t.items)}`,
+      prefill:{ name:b.name, contact:b.phone.replace(/\D/g,"").slice(-10) },
+      notes:{ order:b.no }, theme:{ color:"#0c831f" },
+      handler: async res => {
+        rzpMsg("⏳ Confirming payment…");
+        try{
+          const v = await rzpCall("/verify",{ order_id:res.razorpay_order_id, payment_id:res.razorpay_payment_id, signature:res.razorpay_signature });
+          if(!v.ok) throw new Error("verify");
+          rzpPaid = { payment_id:res.razorpay_payment_id, amount:v.amount_paid||t.total, total:t.total };
+          rzpMsg(`✅ Paid ₹${rzpPaid.amount} successfully! Now tap <b>Send Order on WhatsApp</b> below.${hn("Payment ho gaya — ab neeche WhatsApp pe order bhejein")}`,"good");
+          updateWA();
+        }catch(e){ rzpMsg(`⚠ Payment received but could not be confirmed. Please send the order on WhatsApp — we will check it. (ID: ${res.razorpay_payment_id})`,"bad");
+          rzpPaid = { payment_id:res.razorpay_payment_id, amount:t.total, total:t.total, unverified:true }; updateWA(); }
+      },
+      modal:{ ondismiss:()=>{ if(!rzpPaid) rzpMsg("Payment cancelled. You can try again or choose Cash on Delivery."); } }
+    });
+    rz.on("payment.failed", r => rzpMsg(`❌ Payment failed: ${esc((r.error&&r.error.description)||"try again")}`,"bad"));
+    rz.open();
+  }catch(e){ rzpMsg("⚠ Online payment is not available right now. Please choose Cash on Delivery or UPI.","bad"); }
+}
 const timeOpts = () => isClosed() ? ["Tomorrow morning (after mandi run)","Tomorrow afternoon (12–4 PM)","Tomorrow evening (5–8 PM)"] : ["Right after mandi run (earliest)","Afternoon (12–4 PM)","Evening (5–8 PM)"];
 const form = {name:"",phone:"",addr:"",time:"",pay:"Cash on Delivery"};
 const upiQuery = amt => `pa=${SHOP.upi}&pn=${encodeURIComponent(SHOP.name)}&am=${amt}.00&cu=INR&tn=${encodeURIComponent("Vegetable order")}`;
+function copyPay(b,amt){
+  const done=()=>{ b.textContent="✓ Copied: "+SHOP.upi; setTimeout(()=>b.textContent=`📋 Copy UPI ID (₹${amt})`,2500); };
+  try{ navigator.clipboard.writeText(SHOP.upi).then(done).catch(()=>{ b.textContent=SHOP.upi; }); }catch(e){ b.textContent=SHOP.upi; }
+}
 function renderUpi(){
   const box=$("upibox"); if(!box) return;
+  if(form.pay===RZP){ if(!$("rzpmsg")) box.innerHTML=`<div class="rzp"><b>🔒 Secure online payment</b>${hn("Card, UPI, Netbanking, Wallet")}<p>Fill your address, then tap the green button below to pay ₹${totals().total}.</p><div id="rzpmsg" class="rzp-msg"></div></div>`; return; }
   if(form.pay!==PAYNOW){ box.innerHTML=""; return; }
   const t=totals(), q=upiQuery(t.total);
+  const merchant = !!SHOP.upiMerchant;   // true only for a Business/Merchant UPI ID
   box.innerHTML = `<div class="upi">
-    <div class="upi-h"><b>Pay ₹${t.total} now</b>${hn("Abhi UPI se payment karein")}</div>
-    <a class="upi-main" href="upi://pay?${q}" target="_top" rel="noopener">📲 Pay ₹${t.total} with any UPI app</a>
-    <div class="upi-apps">
-      <a href="tez://upi/pay?${q}" target="_top">GPay</a>
-      <a href="phonepe://pay?${q}" target="_top">PhonePe</a>
-      <a href="paytmmp://pay?${q}" target="_top">Paytm</a>
+    <div class="upi-h"><b>Pay ₹${t.total} by UPI</b>${hn("UPI se payment karein")}</div>
+    <div class="upi-steps">
+      <div><i class="un">1</i>Copy UPI ID & amount ${hn("UPI ID aur rakam copy karein")}</div>
+      <div><i class="un">2</i>Open your UPI app → Pay to UPI ID / Send money ${hn("App kholein → UPI ID pe pay karein")}</div>
+      <div><i class="un">3</i>Paste ID, enter ₹${t.total}, pay ${hn("Paste karein, rakam daalein, pay karein")}</div>
     </div>
-    <div class="upi-or">— or scan this QR from any UPI app —</div>
+    <div class="upi-id">UPI ID: <b>${SHOP.upi}</b></div>
+    <button type="button" class="upi-main" onclick="copyPay(this,${t.total})">📋 Copy UPI ID (₹${t.total})</button>
+    <div class="upi-apps">
+      <a href="${merchant?`tez://upi/pay?${q}`:"gpay://"}" target="_top">Open GPay</a>
+      <a href="${merchant?`phonepe://pay?${q}`:"phonepe://"}" target="_top">Open PhonePe</a>
+      <a href="${merchant?`paytmmp://pay?${q}`:"paytmmp://"}" target="_top">Open Paytm</a>
+    </div>
+    <div class="upi-or">— or scan this QR from <b>another phone</b> —</div>
     <div class="upi-qr" id="upiqr"><span>Loading QR…</span></div>
-    <div class="upi-id">UPI ID: <b>${SHOP.upi}</b> <button class="cpy" type="button" onclick="copyUpi(this)">Copy</button></div>
     <p class="upi-note">After paying, send the order on WhatsApp and attach the payment screenshot.${hn("Payment ke baad WhatsApp pe order bhejein aur screenshot bhi bhejein.")}</p>
   </div>`;
   try{ const qr=qrcode(0,"M"); qr.addData("upi://pay?"+q); qr.make(); $("upiqr").innerHTML=qr.createSvgTag({cellSize:4,margin:2,scalable:true}); }
@@ -964,7 +1020,9 @@ function renderDrawer(){
 }
 function updateWA(){
   const t = totals(), btn = $("waBtn");
+  if(rzpPaid && rzpPaid.total!==t.total && !rzpPaid.locked){ rzpMsg(`⚠ Cart changed after payment of ₹${rzpPaid.amount}. Please send the order on WhatsApp – we will adjust.`,"bad"); rzpPaid.locked=true; }
   $("waTot").textContent = "₹"+t.total;
+  const lbl=$("waLbl"); if(lbl) lbl.innerHTML = (form.pay===RZP && !rzpPaid) ? `🔒 Pay ₹${t.total} Online ›<small>Card / UPI / Netbanking</small>` : (form.pay===RZP && rzpPaid) ? `✓ Paid – Send Order on WhatsApp ›<small>WhatsApp pe order bhejein</small>` : `Place Order on WhatsApp ›<small>WhatsApp pe order bhejein</small>`;
   renderUpi();
   const ok = t.items && form.name.trim() && form.phone.replace(/\D/g,"").length>=10 && form.addr.trim();
   btn.classList.toggle("dis", !ok);
@@ -1077,7 +1135,7 @@ function newOrderNo(){ const d=new Date(), p=n=>String(n).padStart(2,"0");
 function billData(){
   const t=totals(); if(!orderNo) orderNo=newOrderNo();
   return { no:orderNo, date:new Date().toISOString(), name:form.name.trim(), phone:form.phone.trim(), addr:form.addr.trim(), time:form.time,
-    pay: form.pay===PAYNOW ? `Paid by UPI (${SHOP.upi})` : form.pay,
+    pay: form.pay===RZP && rzpPaid ? `PAID ONLINE ₹${rzpPaid.amount} – Razorpay ${rzpPaid.payment_id}${rzpPaid.unverified?" (please verify)":" ✓"}` : form.pay===PAYNOW ? `Paid by UPI (${SHOP.upi})` : form.pay,
     items:Object.keys(cart).map(id=>{ const p=byId(+id),n=cart[id]; return {id:p.id, n, name:p.name, hn:p.hn, qty:qtyLabel(p,n), rate:`₹${p.price}/${unitTxt(p).replace(/^1 /,"")}`, amt:cost(p,n)}; }),
     sub:t.sub, del:t.del, total:t.total, saved:t.saved, first:isFirstOrder() };
 }
@@ -1142,9 +1200,10 @@ function drawBillPNG(b){
 }
 function placeOrder(e){
   const btn=$("waBtn"); if(btn.classList.contains("dis")){ e.preventDefault(); return; }
+  if(form.pay===RZP && !rzpPaid){ e.preventDefault(); payOnline(); return; }
   const b=billData(); btn.href=`https://wa.me/${SHOP.whatsapp}?text=${encodeURIComponent(billText(b))}`;
   lastBill=b; try{ localStorage.setItem("gsb_last_bill",JSON.stringify(b)); }catch(_){}
-  setTimeout(()=>{ for(const k in cart) delete cart[k]; orderNo=null; updateCart(); render(); showBill(b,true); },400);
+  setTimeout(()=>{ for(const k in cart) delete cart[k]; orderNo=null; rzpPaid=null; updateCart(); render(); showBill(b,true); },400);
 }
 function showBill(b,justPlaced){
   openCart(true);
