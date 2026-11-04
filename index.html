@@ -1201,28 +1201,12 @@ function drawBillPNG(b){
   x.fillStyle="#888"; x.font=`500 12px ${F}`; x.fillText("Final amount may change slightly as vegetables are weighed fresh.",W/2,y+22); x.textAlign="left";
   return new Promise(r=>c.toBlob(r,"image/png"));
 }
-async function placeOrder(e){
-  e.preventDefault();
-  const btn=$("waBtn"); if(btn.classList.contains("dis")) return;
-  if(form.pay===RZP && !rzpPaid){ payOnline(); return; }
-  const b=billData();
+function placeOrder(e){
+  const btn=$("waBtn"); if(btn.classList.contains("dis")){ e.preventDefault(); return; }
+  if(form.pay===RZP && !rzpPaid){ e.preventDefault(); payOnline(); return; }
+  const b=billData(); btn.href=`https://wa.me/${SHOP.whatsapp}?text=${encodeURIComponent(billText(b))}`;
   lastBill=b; try{ localStorage.setItem("gsb_last_bill",JSON.stringify(b)); }catch(_){}
-  btn.classList.add("dis"); const oldLbl=$("waLbl").innerHTML; $("waLbl").innerHTML="Preparing bill…<small>Bill ban raha hai…</small>";
-  let imageSent=false;
-  try{
-    await document.fonts.ready;
-    const blob = await drawBillPNG(b);
-    const file = new File([blob], `Bill-${b.no}.png`, {type:"image/png"});
-    if(navigator.canShare && navigator.canShare({files:[file]})){
-      await navigator.share({files:[file], title:`Order ${b.no} — ${SHOP.name}`, text:`Order ${b.no} — please confirm on WhatsApp.`});
-      imageSent=true;
-    }
-  }catch(err){ /* share unsupported or user cancelled — fall back below */ }
-  btn.classList.remove("dis"); $("waLbl").innerHTML=oldLbl;
-  if(!imageSent){
-    window.open(`https://wa.me/${SHOP.whatsapp}?text=${encodeURIComponent(billText(b))}`, "_blank", "noopener");
-  }
-  for(const k in cart) delete cart[k]; orderNo=null; rzpPaid=null; updateCart(); render(); showBill(b,true,imageSent);
+  setTimeout(()=>{ for(const k in cart) delete cart[k]; orderNo=null; rzpPaid=null; updateCart(); render(); showBill(b,true); },400);
 }
 function showBill(b,justPlaced,imageSent){
   openCart(true);
