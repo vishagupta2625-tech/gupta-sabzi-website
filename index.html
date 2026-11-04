@@ -918,8 +918,7 @@ function updateCart(){
 function copyUpi(b){ try{ navigator.clipboard.writeText(SHOP.upi).then(()=>{b.textContent="Copied ✓";setTimeout(()=>b.textContent="Copy",1500)}).catch(()=>{b.textContent=SHOP.upi}); }catch(e){ b.textContent=SHOP.upi; } }
 const RZP_ON = !!(SHOP.razorpayKeyId && SHOP.razorpayServer);
 const RZP = "Pay Online (Card / UPI / Netbanking)";
-const PAYS = ["Cash on Delivery","Pay Now with UPI (GPay / PhonePe / Paytm)"].concat(RZP_ON?[RZP]:[]);
-const PAYNOW = PAYS[1];
+const PAYS = ["Cash on Delivery"].concat(RZP_ON?[RZP]:[]);
 let rzpPaid = null;   // {payment_id, amount}
 let rzpLib = null;
 function loadRzp(){ if(window.Razorpay) return Promise.resolve(); if(rzpLib) return rzpLib;
@@ -964,29 +963,7 @@ function copyPay(b,amt){
 function renderUpi(){
   const box=$("upibox"); if(!box) return;
   if(form.pay===RZP){ if(!$("rzpmsg")) box.innerHTML=`<div class="rzp"><b>🔒 Secure online payment</b>${hn("Card, UPI, Netbanking, Wallet")}<p>Fill your address, then tap the green button below to pay ₹${totals().total}.</p><div id="rzpmsg" class="rzp-msg"></div></div>`; return; }
-  if(form.pay!==PAYNOW){ box.innerHTML=""; return; }
-  const t=totals(), q=upiQuery(t.total);
-  const merchant = !!SHOP.upiMerchant;   // true only for a Business/Merchant UPI ID
-  box.innerHTML = `<div class="upi">
-    <div class="upi-h"><b>Pay ₹${t.total} by UPI</b>${hn("UPI se payment karein")}</div>
-    <div class="upi-steps">
-      <div><i class="un">1</i>Copy UPI ID & amount ${hn("UPI ID aur rakam copy karein")}</div>
-      <div><i class="un">2</i>Open your UPI app → Pay to UPI ID / Send money ${hn("App kholein → UPI ID pe pay karein")}</div>
-      <div><i class="un">3</i>Paste ID, enter ₹${t.total}, pay ${hn("Paste karein, rakam daalein, pay karein")}</div>
-    </div>
-    <div class="upi-id">UPI ID: <b>${SHOP.upi}</b></div>
-    <button type="button" class="upi-main" onclick="copyPay(this,${t.total})">📋 Copy UPI ID (₹${t.total})</button>
-    <div class="upi-apps">
-      <a href="${merchant?`tez://upi/pay?${q}`:"gpay://"}" target="_top">Open GPay</a>
-      <a href="${merchant?`phonepe://pay?${q}`:"phonepe://"}" target="_top">Open PhonePe</a>
-      <a href="${merchant?`paytmmp://pay?${q}`:"paytmmp://"}" target="_top">Open Paytm</a>
-    </div>
-    <div class="upi-or">— or scan this QR from <b>another phone</b> —</div>
-    <div class="upi-qr" id="upiqr"><span>Loading QR…</span></div>
-    <p class="upi-note">After paying, send the order on WhatsApp and attach the payment screenshot.${hn("Payment ke baad WhatsApp pe order bhejein aur screenshot bhi bhejein.")}</p>
-  </div>`;
-  try{ const qr=qrcode(0,"M"); qr.addData("upi://pay?"+q); qr.make(); $("upiqr").innerHTML=qr.createSvgTag({cellSize:4,margin:2,scalable:true}); }
-  catch(e){ $("upiqr").innerHTML="<span>QR could not load — use the UPI ID below.</span>"; }
+  box.innerHTML="";
 }
 function renderDrawer(){
   if(!timeOpts().includes(form.time)) form.time=timeOpts()[0];
@@ -1013,8 +990,9 @@ function renderDrawer(){
       <input id="fn" placeholder="Full name *" value="${esc(form.name)}">
       <input id="fp" placeholder="Mobile number *" inputmode="tel" value="${esc(form.phone)}">
       <textarea id="fa" rows="2" placeholder="Full address in Kandivali / nearby (house no., building, landmark) *">${esc(form.addr)}</textarea>
+      <select id="ft">${opt(timeOpts(),form.time)}</select>
       <select id="fpay">${opt(PAYS,form.pay)}</select><div id="upibox"></div></div></div>`;
-  [["fn","name"],["fp","phone"],["fa","addr"],["fpay","pay"]].forEach(([id,k])=>{ const el=$(id); el.addEventListener("input",()=>{form[k]=el.value;updateWA();}); });
+  [["fn","name"],["fp","phone"],["fa","addr"],["ft","time"],["fpay","pay"]].forEach(([id,k])=>{ const el=$(id); el.addEventListener("input",()=>{form[k]=el.value;updateWA();}); });
   updateWA();
 }
 function updateWA(){
@@ -1135,7 +1113,7 @@ function newOrderNo(){ const d=new Date(), p=n=>String(n).padStart(2,"0");
 function billData(){
   const t=totals(); if(!orderNo) orderNo=newOrderNo();
   return { no:orderNo, date:new Date().toISOString(), name:form.name.trim(), phone:form.phone.trim(), addr:form.addr.trim(), time:form.time,
-    pay: form.pay===RZP && rzpPaid ? `PAID ONLINE ₹${rzpPaid.amount} – Razorpay ${rzpPaid.payment_id}${rzpPaid.unverified?" (please verify)":" ✓"}` : form.pay===PAYNOW ? `Paid by UPI (${SHOP.upi})` : form.pay,
+    pay: form.pay===RZP && rzpPaid ? `PAID ONLINE ₹${rzpPaid.amount} – Razorpay ${rzpPaid.payment_id}${rzpPaid.unverified?" (please verify)":" ✓"}` : form.pay,
     items:Object.keys(cart).map(id=>{ const p=byId(+id),n=cart[id]; return {id:p.id, n, name:p.name, hn:p.hn, qty:qtyLabel(p,n), rate:`₹${p.price}/${unitTxt(p).replace(/^1 /,"")}`, amt:cost(p,n)}; }),
     sub:t.sub, del:t.del, total:t.total, saved:t.saved, first:isFirstOrder() };
 }
