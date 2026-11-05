@@ -1,0 +1,8 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+<rect width="200" height="200" rx="40" fill="#0c831f"/>
+<text x="100" y="138" text-anchor="middle" font-family="'Plus Jakarta Sans',Arial,sans-serif" font-weight="800" font-size="118" fill="#fff">G</text>
+<g transform="translate(150,36)">
+<path d="M0 16C-9 1 -3 -11 7 -13 4 -2 1 8 0 16z" fill="#f8cb46"/>
+<path d="M0 16C9 3 18 -1 23 3 16 12 9 16 0 16z" fill="#f8cb46" opacity="0.85"/>
+</g>
+</svg>
