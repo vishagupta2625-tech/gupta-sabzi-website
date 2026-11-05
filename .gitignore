@@ -1,3 +1,5 @@
 .DS_Store
 Thumbs.db
 *.log
+scripts/__pycache__/
+scripts/auto-update.log
