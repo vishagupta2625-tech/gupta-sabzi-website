@@ -6,8 +6,8 @@ window.SHOP = {
   name: "Gupta Sabzi Bhandar",
   tagline: "Fresh from the mandi, every morning",
   taglineHn: "Roz subah mandi se seedha aapke ghar",
-  whatsapp: "919920234119",          // 91 + mobile number (no +)
-  phoneDisplay: "+91 99202 34119",
+  whatsapp: "918828287540",          // 91 + mobile number (no +)
+  phoneDisplay: "+91 88282 87540",
   upi: "9920234119@ybl",
   upiMerchant: false,
   // Razorpay (online payment). Dono bharne ke baad hi "Pay Online" option dikhega.
