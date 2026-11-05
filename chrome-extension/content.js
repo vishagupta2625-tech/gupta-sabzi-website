@@ -26,7 +26,7 @@
     return best;
   }
   function scan(){
-    const found = {};
+    const matches = {};   // it.id -> [{per, w, price}, ...] — saare milte-julte variants
     const priceEls = [...document.querySelectorAll("body *")].filter(el => el.children.length===0 && /^\s*₹\s?\d+(\.\d+)?\s*$/.test(el.textContent));
     const seen = new Set();
     for(const pe of priceEls){
@@ -40,8 +40,16 @@
       const price = parseFloat(pe.textContent.replace(/[^\d.]/g,"")); if(!(price>0)) continue;
       const f = packToBase(it.unit, it.pack, parseFloat(w[1]), w[2]); if(!f) continue;
       const per = Math.round(price / f);
-      const title = (tx.split("\n").find(l=>findItem(l))||it.name).trim().slice(0,60);
-      if(!found[it.id] || per < found[it.id].per) found[it.id] = { id:it.id, name:it.name, per, unit:it.unit, seen:`${title} · ${w[0]} · ₹${price}`, site };
+      (matches[it.id] = matches[it.id] || []).push({ it, w:w[0], price, per });
+    }
+    // Ek hi product ke kai variants milein (jaise Hybrid Tomato, Desi Tomato) to average (normal) price lo, sabse sasta nahi.
+    const found = {};
+    for(const id in matches){
+      const arr = matches[id];
+      const it = arr[0].it;
+      const avgPer = Math.round(arr.reduce((s,m)=>s+m.per,0) / arr.length);
+      const detail = arr.length>1 ? `${arr.length} variants ka average` : `${arr[0].w} · ₹${arr[0].price}`;
+      found[id] = { id:it.id, name:it.name, per:avgPer, unit:it.unit, seen:`${it.name} · ${detail}`, site };
     }
     return found;
   }
