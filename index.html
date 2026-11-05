@@ -42,6 +42,12 @@
     if(!(p.price>0)) { p.inStock = false; p.price = 1; }       // daam nahi to "out of stock"
     const ap = window.APPS_PRICES && +window.APPS_PRICES[p.id];
     if(ap>0) p.mrp = ap;                                          // Blinkit/Zepto daam (extension se)
+    // Competitive cap: apps se kam se kam 1-5% sasta dikhao, chahe buy+munafa jyada ho jaye.
+    if(p.mrp>0){
+      const disc = 1 + (p.id % 5);                                // har product ko fix 1-5% (id se tay)
+      const cap = Math.floor(p.mrp * (1 - disc/100));
+      if(cap>0 && p.price>cap) p.price = cap;
+    }
     window.PDATA.items[p.id] = { price:p.price, mrp:p.mrp||0, out: p.inStock===false };
   }
   window.IMGS = {};
