@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Gupta Sabzi – Apps Price Reader",
-  "version": "2.0",
+  "version": "2.1",
   "description": "Blinkit / Zepto pe sabzi ke daam padh ke Gupta Sabzi Bhandar website ke liye compare + Excel export karta hai.",
-  "permissions": ["storage", "tabs", "downloads"],
+  "permissions": ["storage", "tabs", "downloads", "alarms"],
   "host_permissions": [
     "https://blinkit.com/*", "https://*.blinkit.com/*",
     "https://www.zepto.com/*", "https://zepto.com/*",
