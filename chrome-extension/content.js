@@ -49,9 +49,14 @@
   async function autoScan(){
     const { gsbOn } = await chrome.storage.local.get("gsbOn"); if(gsbOn===false) return;
     const f = scan(); if(!Object.keys(f).length) return;
-    const { gsbPrices={} } = await chrome.storage.local.get("gsbPrices");
-    for(const id in f){ const old=gsbPrices[id]; if(!old || old.site!==f[id].site || f[id].per<old.per || Date.now()-(old.t||0)>6*3600e3) gsbPrices[id]={...f[id], t:Date.now()}; }
-    await chrome.storage.local.set({ gsbPrices });
+    const { gsbPrices={}, gsbCompare={} } = await chrome.storage.local.get(["gsbPrices","gsbCompare"]);
+    for(const id in f){
+      const old=gsbPrices[id]; if(!old || old.site!==f[id].site || f[id].per<old.per || Date.now()-(old.t||0)>6*3600e3) gsbPrices[id]={...f[id], t:Date.now()};
+      // Keep BOTH sites' latest reading separately too, for side-by-side comparison.
+      if(!gsbCompare[id]) gsbCompare[id] = { name:f[id].name, unit:f[id].unit };
+      gsbCompare[id][f[id].site] = { per:f[id].per, seen:f[id].seen, t:Date.now() };
+    }
+    await chrome.storage.local.set({ gsbPrices, gsbCompare });
   }
   const run = () => { clearTimeout(timer); timer=setTimeout(autoScan, 1200); };
   new MutationObserver(run).observe(document.documentElement,{childList:true,subtree:true});

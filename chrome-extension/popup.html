@@ -1,16 +1,31 @@
 <!doctype html><html><head><meta charset="utf-8"><style>
-body{width:360px;margin:0;font:13px system-ui,sans-serif;color:#1c1c1c}
+body{width:380px;margin:0;font:13px system-ui,sans-serif;color:#1c1c1c}
 .top{background:#0c831f;color:#fff;padding:12px 14px}.top b{font-size:15px}.top small{display:block;opacity:.85}
 .row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #eee}
 .sw{position:relative;width:44px;height:24px}.sw input{opacity:0;width:0;height:0}.sl{position:absolute;inset:0;background:#ccc;border-radius:24px;cursor:pointer;transition:.2s}
 .sl:before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}input:checked+.sl{background:#0c831f}input:checked+.sl:before{transform:translateX(20px)}
-#list{max-height:300px;overflow:auto}.it{padding:7px 14px;border-bottom:1px dashed #eee}.it b{display:inline-block;min-width:120px}.it span{float:right;font-weight:800}.it small{display:block;color:#888;font-size:11px}
+#list{max-height:220px;overflow:auto}
+table.cmp{width:100%;border-collapse:collapse;font-size:12px}
+table.cmp th{position:sticky;top:0;background:#fff;text-align:left;padding:6px 8px;border-bottom:2px solid #eee;color:#666}
+table.cmp td{padding:6px 8px;border-bottom:1px dashed #eee}
+table.cmp td.win{font-weight:800;color:#0c831f}
 .btns{display:grid;gap:6px;padding:10px 14px}button{border:0;border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-size:13px}
-.p{background:#0c831f;color:#fff}.s{background:#f1f1f1}.msg{padding:0 14px 10px;color:#0a6a19;font-weight:600;min-height:16px}.empty{padding:16px 14px;color:#777;line-height:1.5}
+.p{background:#0c831f;color:#fff}.s{background:#f1f1f1}.d{background:#fde8e8;color:#b42318}
+.msg{padding:0 14px 10px;color:#0a6a19;font-weight:600;min-height:16px}.empty{padding:16px 14px;color:#777;line-height:1.5}
+.prog{padding:0 14px 10px;color:#0a6a19;font-weight:600;font-size:12px;min-height:14px}
 </style></head><body>
 <div class="top"><b>🥬 Gupta Sabzi – Apps Prices</b><small>Blinkit / Zepto pe sabzi kholo, daam yahan apne-aap aayenge</small></div>
 <div class="row"><span><b>Auto-read prices</b><br><small id="st"></small></span><label class="sw"><input type="checkbox" id="on"><span class="sl"></span></label></div>
+
+<div class="btns" style="padding-bottom:0">
+  <button class="p" id="runAll">⚡ Compare All (apne catalog ke 46 items)</button>
+  <button class="d" id="stopAll" style="display:none">⏹ Rokiye</button>
+</div>
+<div class="prog" id="prog"></div>
+
 <div id="list"></div>
-<div class="btns"><button class="p" id="copy">📋 Copy for VS Code (apps-prices.js)</button><button class="s" id="scan">🔄 Read this page again</button><button class="s" id="clear">🗑 Clear all</button></div>
+
+<div class="btns"><button class="p" id="exportXl">⬇ Export to Excel (CSV)</button><button class="s" id="copy">📋 Copy for VS Code (apps-prices.js)</button><button class="s" id="scan">🔄 Read this page again</button><button class="s" id="clear">🗑 Clear all</button></div>
 <div class="msg" id="msg"></div>
+<script src="products-map.js"></script>
 <script src="popup.js"></script></body></html>
