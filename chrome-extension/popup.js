@@ -24,15 +24,16 @@ async function show(){
 
   const rows = Object.entries(gsbCompare).map(([id,v])=>({id:+id,...v})).sort((a,b)=>a.id-b.id);
   if(rows.length){
+    const rawInfo = s => s ? `<small>${(s.split("·")[1]||"").trim() || ""}</small>` : "";
     const trs = rows.map(r=>{
       const z=r.Zepto, b=r.Blinkit;
-      const zv = z?`₹${z.per}`:"—", bv = b?`₹${b.per}`:"—";
+      const zv = z?`₹${z.per}${per[r.unit]||""}${rawInfo(z.seen)}`:"—", bv = b?`₹${b.per}${per[r.unit]||""}${rawInfo(b.seen)}`:"—";
       let win="—", zc="", bc="";
       if(z && b){ if(z.per<b.per){win="Zepto";zc="win";} else if(b.per<z.per){win="Blinkit";bc="win";} else win="Same"; }
       else if(z){ win="Zepto"; zc="win"; } else if(b){ win="Blinkit"; bc="win"; }
-      return `<tr><td>${r.name}${per[r.unit]||""}</td><td class="${zc}">${zv}</td><td class="${bc}">${bv}</td><td>${win}</td></tr>`;
+      return `<tr><td>${r.name}</td><td class="${zc}">${zv}</td><td class="${bc}">${bv}</td><td>${win}</td></tr>`;
     }).join("");
-    $("list").innerHTML = `<table class="cmp"><thead><tr><th>Product</th><th>Zepto</th><th>Blinkit</th><th>Cheapest</th></tr></thead><tbody>${trs}</tbody></table>`;
+    $("list").innerHTML = `<table class="cmp"><thead><tr><th>Product</th><th>Zepto</th><th>Blinkit</th><th>Cheapest</th></tr></thead><tbody>${trs}</tbody></table><div class="hint">Chhoti line = website par jo asli weight/price dikha tha (e.g. 250 g · ₹32), uske hisaab se kg-price nikala gaya.</div>`;
   } else {
     $("list").innerHTML = `<div class="empty">Abhi koi daam nahi mila.<br>"⚡ Compare All" dabao, ya Blinkit/Zepto pe khud search karo.</div>`;
   }
